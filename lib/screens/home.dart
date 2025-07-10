@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:hns/models/hist.dart';
 import 'package:hns/models/kard.dart';
 import 'package:hns/screens/widget_kard.dart';
-import 'package:hns/screens/utils.dart';
+import 'package:hns/shared/sharedprefshelper.dart';
+import 'package:hns/shared/utils.dart';
 import 'package:hns/shared/tools_widgets.dart';
 import 'package:hns/models/savedata.dart';
 import 'package:hns/models/game.dart';
+
+Function debugPrint = (String? msg, {int? wrapWidth}) {};
+
+final double kCardSeparation = 2;
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -23,7 +28,9 @@ class _HomeState extends State<Home> {
   List<Hist> lsHist = [];
 
   void _reset(BuildContext context) {
-    if (lsSrce.isEmpty) {
+    //  debugPrint("Shared Pref $SharedPrefsHelper.prefs.containsKey('lsSrce')");
+
+    if (lsSrce.isEmpty && SharedPrefsHelper.prefs.containsKey("lsSrce")) {
       // need sentinel, if resetExists
       //      showOkCancelDialog(context, "Reset", "This will restart the game, are you sure?").then((DialogResult res) {
       show3AnswerDialog(
@@ -44,8 +51,15 @@ class _HomeState extends State<Home> {
           _restoreHelper();
         }
       });
+    } else if (lsHand.isEmpty && lsHist.isEmpty && lsHist.isEmpty) {
+      msgBox(context, "Nothing to reset.");
     } else {
-      _resetHelper();
+      showOkCancelDialog(context, "Reset", "This will throw away everything and start anew, are you sure?").then((DialogResult res) {
+        debugPrint("Here");
+        if (res == DialogResult.ok) {
+          _resetHelper();
+        }
+      });
     }
   }
 
@@ -65,7 +79,7 @@ class _HomeState extends State<Home> {
     // Not implemented
     debugPrint("Pressed Restore");
     try {
-      GameState gs = await loadData();
+      GameState gs = loadData();
       setState(() {
         lsSrce = gs.lsSrce;
         lsDraw = gs.lsDraw;
@@ -109,9 +123,9 @@ class _HomeState extends State<Home> {
 
   void _draw(BuildContext context) {
     if (lsDraw.length > 2) {
-      msgBox(context, "No space in 'On Deck'.");
+      msgBox(context, "You can only draw up to 3 cards, either play or discard.");
     } else if (lsSrce.isEmpty) {
-      msgBox(context, "No more cards in Source.");
+      msgBox(context, "There are no more cards to draw.");
     } else {
       setState(() {
         lsDraw.add(lsSrce[0]);
@@ -203,15 +217,12 @@ class _HomeState extends State<Home> {
                 itemBuilder: (_, index) {
                   return WidgetKard(
                     idKard: lsDraw[index],
-                    //                    kard: lsKardOnSrce[index],
                     tySituation: TySituation.drawn,
                     fnMove: () {
-                      //                      moveKardToHand(index);
                       moveToHand(index);
                     },
                     fnPlay: () {},
                     fnRemove: () {
-                      //                      removeKardOnSrce(index);
                       removeDraw(index);
                     },
                   );
@@ -221,19 +232,18 @@ class _HomeState extends State<Home> {
             mySectionText("In Hand"),
             Expanded(
               child: ListView.builder(
-                //                itemCount: lsKardInHand.length,
                 itemCount: lsHand.length,
                 itemBuilder: (_, index) {
                   return WidgetKard(
                     idKard: lsHand[index],
-                    //                    kard: lsKardInHand[index],
                     tySituation: TySituation.inhand,
                     fnMove: () {
-                      //                      removeKardInHand(index);
                       removeHand(index);
                     },
-                    fnPlay: () {},
                     fnRemove: () {
+                      removeHand(index);
+                    },
+                    fnPlay: () {
                       removeHand(index);
                     },
                   );

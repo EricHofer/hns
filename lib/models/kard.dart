@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class Kard {
   // attributes
   final int idKard;
@@ -221,28 +223,28 @@ List<Kard> populateKardDeck() {
 
 final List<Kard> lsKard = populateKardDeck();
 
-Kard castKardFromIndex(int index) {
-  return Kard(lsKard[index].idKard, lsKard[index].tyKard, lsKard[index].nmKard, lsKard[index].txDesc, lsKard[index].txRule);
+Kard castKardFromidKard(int idKard) {
+  return Kard(lsKard[idKard].idKard, lsKard[idKard].tyKard, lsKard[idKard].nmKard, lsKard[idKard].txDesc, lsKard[idKard].txRule);
 }
 
-String getNmKard(int index) {
-  return lsKard[index].nmKard;
+String getNmKard(int idKard) {
+  return lsKard[idKard].nmKard;
 }
 
-TyKard getTyKard(int index) {
-  return lsKard[index].tyKard;
+TyKard getTyKard(int idKard) {
+  return lsKard[idKard].tyKard;
 }
 
-String getDesc(int index) {
-  return lsKard[index].txDesc;
+String getDesc(int idKard) {
+  return lsKard[idKard].txDesc;
 }
 
-String getRule(int index) {
-  return lsKard[index].txRule;
+String getRule(int idKard) {
+  return lsKard[idKard].txRule;
 }
 
-String getKardImage(int index) {
-  switch (lsKard[index].tyKard) {
+String getKardImage(int idKard) {
+  switch (lsKard[idKard].tyKard) {
     case TyKard.bonus:
       return "assets/img/bonus.png";
     case TyKard.curse:
@@ -252,4 +254,99 @@ String getKardImage(int index) {
     default:
       return "assets/img/notset.jpg";
   }
+}
+
+Color getColorKardBkg(int idKard) {
+  switch (lsKard[idKard].tyKard) {
+    case TyKard.bonus:
+      switch (lsKard[idKard].nmKard.substring(0, 1)) {
+        case "R":
+          return Colors.red;
+        case "O":
+          return Colors.orange;
+        case "Y":
+          return Colors.yellow;
+        case "G":
+          return Colors.green;
+        case "B":
+          return const Color.fromARGB(255, 82, 57, 226);
+        default:
+          return Colors.grey;
+      }
+    case TyKard.curse:
+      return Colors.black;
+    //    case TyKard.powerup:
+    default:
+      return Colors.purple;
+  }
+}
+
+Color getColorKardText(int idKard) {
+  switch (lsKard[idKard].tyKard) {
+    case TyKard.bonus:
+      switch (lsKard[idKard].nmKard.substring(0, 1)) {
+        case "R":
+          return Colors.yellow;
+        case "O":
+          return Colors.black;
+        case "Y":
+          return Colors.black;
+        case "G":
+          return Colors.purple;
+        case "B":
+          return Colors.white;
+        default:
+          return Colors.black;
+      }
+    case TyKard.curse:
+      return Colors.white;
+    //    case TyKard.powerup:
+    default:
+      return Colors.yellow;
+  }
+}
+
+class StyledKardHeading extends StatelessWidget {
+  final int idKard;
+  const StyledKardHeading(this.idKard, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      getNmKard(idKard),
+      style: TextStyle(color: getColorKardText(idKard), fontWeight: FontWeight.bold, fontSize: 16.0),
+
+      //style: Theme.of(context).textTheme.headlineMedium,
+    );
+  }
+} //getTyKard(idKard) == TyKard.notset ? "Not set" : getNmKard(
+//getDesc(
+
+class StyledKardText extends StatelessWidget {
+  final int idKard;
+  const StyledKardText(this.idKard, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      getDesc(idKard),
+      style: TextStyle(color: getColorKardText(idKard), fontStyle: FontStyle.italic, fontSize: 14.0),
+
+      //style: Theme.of(context).textTheme.headlineMedium,
+    );
+  }
+}
+
+//IconButton(onPressed: fnMove, icon: Icon(Icons.download))
+
+Widget styledKardIconButton(int idKard, {required Widget icon, required VoidCallback onPressed}) {
+  return IconButton(
+    onPressed: onPressed,
+    style: FilledButton.styleFrom(
+      //#15 use the name of the widget to get styles
+      backgroundColor: getColorKardBkg(idKard), //  Colors.blue[900],
+      foregroundColor: getColorKardText(idKard), //Colors.white,
+    ),
+    icon: icon,
+  );
 }

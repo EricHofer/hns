@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hns/models/kard.dart';
 import 'package:hns/shared/styles.dart';
-import 'package:hns/screens/utils.dart';
+import 'package:hns/shared/utils.dart';
 
 class WidgetKard extends StatelessWidget {
   final int idKard;
@@ -15,44 +15,62 @@ class WidgetKard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: getColorKardBkg(idKard),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Padding(
-        padding: const EdgeInsets.all(6.0),
+        padding: const EdgeInsets.only(bottom: 2.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.asset(
-              getKardImage(idKard),
-              width: 60,
-              height: 60,
-              color: Colors.white,
-              colorBlendMode: BlendMode.multiply, //#14 6m18
+            Padding(
+              padding: EdgeInsets.only(left: 4.0, top: 4.0),
+              child: Image.asset(
+                getKardImage(idKard),
+                width: 60,
+                height: 60,
+                color: Colors.white,
+                colorBlendMode: BlendMode.multiply, //#14 6m18
+              ),
             ),
+
             SizedBox(width: 3),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  StyledHeading(getTyKard(idKard) == TyKard.notset ? "Not set" : getNmKard(idKard)),
-                  if (getTyKard(idKard) != TyKard.notset) StyledText(getDesc(idKard)),
+                  //                  StyledHeading(getTyKard(idKard) == TyKard.notset ? "Not set" : getNmKard(idKard)),
+                  StyledKardHeading(idKard),
+
+                  if (getTyKard(idKard) != TyKard.notset) StyledKardText(idKard),
                 ],
               ),
             ),
             SizedBox(width: 3),
             Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                (tySituation == TySituation.drawn)
-                    ? IconButton(onPressed: fnMove, icon: Icon(Icons.download))
-                    : IconButton(onPressed: fnPlay, icon: Icon(Icons.arrow_forward)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    (tySituation == TySituation.drawn)
+                        ? styledKardIconButton(idKard, onPressed: fnMove, icon: Icon(Icons.download))
+                        : styledKardIconButton(idKard, onPressed: fnPlay, icon: Icon(Icons.arrow_forward)),
+                    /*                         ? IconButton(onPressed: fnMove, icon: Icon(Icons.download))
+                        : IconButton(onPressed: fnPlay, icon: Icon(Icons.arrow_forward)),
+ */
+                  ],
+                ),
                 Row(
                   children: [
-                    IconButton(
+                    styledKardIconButton(
+                      idKard,
                       onPressed: () {
                         msgBox(context, getRule(idKard));
                       },
                       icon: Icon(Icons.info),
                     ), //#27 1m52
-                    IconButton(onPressed: fnRemove, icon: Icon(Icons.delete)), //#27 1m52 see fonts.google.com/icons
+                    styledKardIconButton(idKard, onPressed: fnRemove, icon: Icon(Icons.delete)), //#27 1m52 see fonts.google.com/icons
                   ],
                 ),
               ],

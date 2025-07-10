@@ -5,7 +5,7 @@ Widget myTopButton({required String label, required VoidCallback onPressed}) {
     onPressed: onPressed,
     style: FilledButton.styleFrom(
       //#15 use the name of the widget to get styles
-      backgroundColor: Colors.blue[800],
+      backgroundColor: Colors.blue[900],
       foregroundColor: Colors.white,
     ),
     child: Text(label),
@@ -13,5 +13,8 @@ Widget myTopButton({required String label, required VoidCallback onPressed}) {
 }
 
 Widget mySectionText(String label) {
-  return Text(label, style: TextStyle(color: Colors.amberAccent));
+  return Text(
+    label,
+    style: TextStyle(color: Colors.amberAccent, fontWeight: FontWeight.bold),
+  );
 }
