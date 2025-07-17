@@ -4,6 +4,7 @@ import 'package:hns/models/hist.dart';
 import 'package:hns/shared/sharedprefshelper.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hns/models/game.dart';
+//import 'package:hns/shared/utils.dart';
 
 // Save all lists as JSON strings
 void saveData(List<int> lsSrce, List<int> lsDraw, List<int> lsHand, List<Hist> lsHist) {
@@ -32,7 +33,6 @@ Future<GameState> loadData() async {
   final prefs = await SharedPreferences.getInstance();
   List<int> lsSrce = [], lsDraw = [], lsHand = [];
   List<Hist> lsHist = [];
-  debugPrint("Loading..."); //!!HERE
 
   String? jsonDeck = prefs.getString('lsSrce');
   String? jsonDraw = prefs.getString('lsDraw');
@@ -59,7 +59,6 @@ Future<GameState> loadData() async {
 GameState loadData() {
   List<int> lsSrce = [], lsDraw = [], lsHand = [];
   List<Hist> lsHist = [];
-  debugPrint("Loading..."); //!!HERE
 
   String? jsonDeck = SharedPrefsHelper.prefs.getString('lsSrce');
   String? jsonDraw = SharedPrefsHelper.prefs.getString('lsDraw');
@@ -73,10 +72,11 @@ GameState loadData() {
     try {
       lsHist = (jsonDecode(jsonHist) as List).map<Hist>((e) => Hist.fromJson(e as Map<String, dynamic>)).toList();
     } catch (e) {
-      debugPrint(e.toString());
+      rethrow;
+      //      msgBox(context,  "Error loading data: $e.toString()");
     }
   }
-  debugPrint("Loaded, Draw=$lsDraw");
+  //  debugPrint("Loaded, Draw=$lsDraw");
 
   return GameState(lsSrce: lsSrce, lsDraw: lsDraw, lsHand: lsHand, lsHist: lsHist);
 }

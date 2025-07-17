@@ -28,8 +28,6 @@ class _HomeState extends State<Home> {
   List<Hist> lsHist = [];
 
   void _reset(BuildContext context) {
-    //  debugPrint("Shared Pref $SharedPrefsHelper.prefs.containsKey('lsSrce')");
-
     if (lsSrce.isEmpty && SharedPrefsHelper.prefs.containsKey("lsSrce")) {
       // need sentinel, if resetExists
       //      showOkCancelDialog(context, "Reset", "This will restart the game, are you sure?").then((DialogResult res) {
@@ -47,15 +45,14 @@ class _HomeState extends State<Home> {
         if (res == DialogResult.ok) {
           _resetHelper();
         } else if (res == DialogResult.no) {
-          debugPrint("in Restore");
           _restoreHelper();
         }
       });
     } else if (lsHand.isEmpty && lsHist.isEmpty && lsHist.isEmpty) {
-      msgBox(context, "Nothing to reset.");
+      // starting from scratch
+      _resetHelper();
     } else {
       showOkCancelDialog(context, "Reset", "This will throw away everything and start anew, are you sure?").then((DialogResult res) {
-        debugPrint("Here");
         if (res == DialogResult.ok) {
           _resetHelper();
         }
@@ -64,7 +61,6 @@ class _HomeState extends State<Home> {
   }
 
   void _resetHelper() {
-    debugPrint("Resetting");
     setState(() {
       lsSrce.clear();
       lsDraw.clear();
@@ -77,7 +73,6 @@ class _HomeState extends State<Home> {
 
   Future<void> _restoreHelper() async {
     // Not implemented
-    debugPrint("Pressed Restore");
     try {
       GameState gs = loadData();
       setState(() {
@@ -87,16 +82,17 @@ class _HomeState extends State<Home> {
         lsHist = gs.lsHist;
       });
     } catch (e) {
-      debugPrint("Failed");
+      rethrow;
+      //      debugPrint("Failed");
     }
   }
 
   void undoHist(BuildContext context) {
-    debugPrint("Printing the history\n");
+    /*    debugPrint("Printing the history\n");
     for (final h in lsHist) {
       debugPrint(" ${h.idKard} '${getNmKard(h.idKard)}' ${h.tyHistAct}");
     }
-
+*/
     // use the last one and figure out where it came from
     final Hist vH = lsHist.last;
     setState(() {
@@ -147,7 +143,7 @@ class _HomeState extends State<Home> {
   }
 
   void removeHand(int index) {
-    debugPrint("removeHand $index");
+    //   debugPrint("removeHand $index");
     setState(() {
       lsHist.add(Hist(lsHand[index], TyHistAct.deletedFromHand));
       lsHand.removeAt(index);
@@ -157,7 +153,7 @@ class _HomeState extends State<Home> {
 
   void moveToHand(int index) {
     setState(() {
-      debugPrint("removeKardTohand $index");
+      //    debugPrint("removeKardTohand $index");
       lsHand.add(lsDraw[index]);
       lsHist.add(Hist(lsDraw[index], TyHistAct.moved));
       lsDraw.removeAt(index);

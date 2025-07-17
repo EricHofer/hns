@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hns/models/kard.dart';
-import 'package:hns/shared/styles.dart';
+//import 'package:hns/shared/styles.dart';
 import 'package:hns/shared/utils.dart';
 
 class WidgetKard extends StatelessWidget {
