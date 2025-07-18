@@ -23,11 +23,11 @@ class _HomeState extends State<Home> {
   List<int> lsSrce = [];
   List<int> lsDraw = [];
   List<int> lsHand = [];
-  //  List<Kard> lsKardOnSrce = [];
-  //  List<Kard> lsKardInHand = [];
   List<Hist> lsHist = [];
 
   void _reset(BuildContext context) {
+    String txError = "";
+
     if (lsSrce.isEmpty && SharedPrefsHelper.prefs.containsKey("lsSrce")) {
       // need sentinel, if resetExists
       //      showOkCancelDialog(context, "Reset", "This will restart the game, are you sure?").then((DialogResult res) {
@@ -45,11 +45,15 @@ class _HomeState extends State<Home> {
         if (res == DialogResult.ok) {
           _resetHelper();
         } else if (res == DialogResult.no) {
-          _restoreHelper();
+          try {
+            _restoreHelper();
+          } catch (e) {
+            txError = "Error ${e.toString()}";
+          }
         }
       });
-    } else if (lsHand.isEmpty && lsHist.isEmpty && lsHist.isEmpty) {
-      // starting from scratch
+    } else if (lsHand.isEmpty && lsHist.isEmpty && lsSrce.isEmpty) {
+      // starting from scratchr
       _resetHelper();
     } else {
       showOkCancelDialog(context, "Reset", "This will throw away everything and start anew, are you sure?").then((DialogResult res) {
@@ -57,6 +61,10 @@ class _HomeState extends State<Home> {
           _resetHelper();
         }
       });
+    }
+
+    if (txError != "") {
+      msgBox(context, "Error $txError");
     }
   }
 
@@ -68,13 +76,14 @@ class _HomeState extends State<Home> {
       lsHist.clear();
       lsSrce = List.generate(lsKard.length, (index) => index); // generate a list of 1 to 100 which will then be shuffled
       lsSrce.shuffle();
+      saveData(lsSrce, lsDraw, lsHand, lsHist); // 20250718 EH omitted
     });
   }
 
   Future<void> _restoreHelper() async {
     // Not implemented
     try {
-      GameState gs = loadData();
+      GameState gs = loadData(); // returns the last group of settings
       setState(() {
         lsSrce = gs.lsSrce;
         lsDraw = gs.lsDraw;
@@ -88,32 +97,39 @@ class _HomeState extends State<Home> {
   }
 
   void undoHist(BuildContext context) {
-    /*    debugPrint("Printing the history\n");
+    /******
+    debugPrint("Printing the history\n");
     for (final h in lsHist) {
       debugPrint(" ${h.idKard} '${getNmKard(h.idKard)}' ${h.tyHistAct}");
     }
-*/
+******/
+
     // use the last one and figure out where it came from
     final Hist vH = lsHist.last;
     setState(() {
       switch (vH.tyHistAct) {
         case TyHistAct.deletedFromDraw:
-          lsSrce.add(vH.idKard);
+          lsDraw.add(vH.idKard);
           break;
         case TyHistAct.deletedFromHand:
           lsHand.add(vH.idKard);
           break;
         case TyHistAct.drawn:
-          final int indexOfWanted = lsSrce.indexWhere((k) => k == vH.idKard);
-          lsDraw.insert(0, vH.idKard);
-          lsSrce.removeAt(indexOfWanted);
+          lsSrce.insert(0, vH.idKard);
+
+          // as reversing lsSrce->lsDraw, need to find where vH.idKard is in Draw list
+          final int indexOfWanted = lsDraw.indexWhere((k) => k == vH.idKard);
+          lsDraw.removeAt(indexOfWanted);
           break;
         case TyHistAct.moved:
+          lsDraw.add(vH.idKard);
+
+          // as reversing lsDraw->lsHand, need to find where vH.idKard is in Hand list
           final int indexOfWanted = lsHand.indexWhere((k) => k == vH.idKard);
-          lsSrce.add(lsHand[indexOfWanted]);
           lsHand.removeAt(indexOfWanted);
       }
       lsHist.removeLast();
+      saveData(lsSrce, lsDraw, lsHand, lsHist); // 20250718 EH omitted
     });
   }
 
@@ -193,7 +209,7 @@ class _HomeState extends State<Home> {
                 myTopButton(
                   label: "Shuf",
                   onPressed: () {
-                    lsDraw.shuffle();
+                    lsSrce.shuffle();
                   },
                 ),
                 SizedBox(width: 3),
